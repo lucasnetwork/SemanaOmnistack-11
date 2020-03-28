@@ -1,49 +1,25 @@
 const express = require('express')
+
 const routes = express.Router()
+
 const OngController = require('./controllers/OngController')
 const IncidentController = require('./controllers/IncidentController')
 const ProfileController = require('./controllers/ProfileController')
 const SessionController = require('./controllers/SessionController')
-const {celebrate,Segments,Joi} = require('celebrate')
 
+const OngsValidation = require('./validations/OngsValidation')
+const IncidentsValidation = require('./validations/IncidentsValidation')
+const SessionValidation = require('./validations/SessionValidation')
+const ProfileValidation = require('./validations/ProfileValidation')
 
-routes.post('/sessions',SessionController.create)
+routes.post('/sessions',(SessionValidation.create),SessionController.create)
 
 routes.get('/ongs', OngController.index)
-routes.post('/ongs', celebrate({
-    [Segments.BODY]:Joi.object().keys({
-        name:Joi.string().required(),
-        email: Joi.string().required().email(),
-        whatsaap:Joi.string().required().min(10).max(11),
-        city:Joi.string().required(),
-        uf:Joi.string().required().length(2)
-    })
-}),OngController.create)
+routes.post('/ongs',OngsValidation.create ,OngController.create)
 
-routes.get('/profile',celebrate({
-    [Segments.HEADERS]:Joi.object().keys({
-        authorization:Joi.string().required(),
-    }).unknown()
-}),ProfileController.index)
+routes.get('/profile',(ProfileValidation.index),ProfileController.index)
 
-routes.post('/incidents',celebrate({
-    [Segments.BODY]:Joi.object().keys({
-        title:Joi.string().required(),
-        description:Joi.string().required(),
-        value:Joi.number().required().min(1)
-    }),
-    [Segments.HEADERS]:Joi.object().keys({
-        authorization:Joi.string().required()
-    })
-}), IncidentController.create)
-routes.get('/incidents',celebrate({
-    [Segments.QUERY]:Joi.object().keys({
-        page:Joi.number()
-    })
-}), IncidentController.index)
-routes.delete('/incidents/:id',celebrate({
-    [Segments.PARAMS]: Joi.object({
-        id:Joi.number().required()
-    })
-}), IncidentController.delete)
+routes.post('/incidents',(IncidentsValidation.create), IncidentController.create)
+routes.get('/incidents',(IncidentsValidation.index), IncidentController.index)
+routes.delete('/incidents/:id',(IncidentsValidation.delete), IncidentController.delete)
 module.exports = routes
