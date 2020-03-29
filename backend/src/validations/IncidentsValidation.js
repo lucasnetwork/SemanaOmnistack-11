@@ -9,7 +9,7 @@ module.exports = {
         }),
         [Segments.HEADERS]:Joi.object().keys({
             authorization:Joi.string().required()
-        })
+        }).unknown()
     }),
     index:celebrate({
         [Segments.QUERY]:Joi.object().keys({
